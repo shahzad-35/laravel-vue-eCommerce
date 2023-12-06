@@ -10,3 +10,12 @@ export function setToken(state, token) {
         sessionStorage.removeItem('TOKEN')
     }
 }
+
+export function removeUserData(state, user) {
+    state.user.data = user;
+    if (user) {
+        localStorage.setItem("user", user);
+    } else {
+        localStorage.removeItem("user");
+    }
+}
