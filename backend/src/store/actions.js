@@ -11,7 +11,8 @@ export function getUser({ commit }, data) {
 export function login({ commit }, data) {
     return axiosClient.post('/login', data)
         .then(({ data }) => {
-            commit('setUser', data.user);
+            console.log('user checking', data.user);
+            commit('setUser', JSON.stringify(data.user));
             commit('setToken', data.token)
             return data;
         })
@@ -21,7 +22,8 @@ export function logout({ commit }) {
     return axiosClient.post('/logout')
         .then((response) => {
             commit('setToken', null)
-            commit('removeUserData', null)
+            commit('setUser', null)
+            // commit('removeUserData', null)
             return response;
         })
 }

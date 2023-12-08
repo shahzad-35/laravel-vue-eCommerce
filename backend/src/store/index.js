@@ -4,15 +4,14 @@ import createPersistedState from "vuex-persistedstate";
 import * as actions from "./actions";
 import * as mutations from "./mutations";
 
-const storedData = localStorage.getItem("user");
+const storedData = sessionStorage.getItem("user");
 const parsedData = storedData ? JSON.parse(storedData) : {};
-console.log('parsedData',parsedData);
-console.log('storedData',storedData);
+
 const store = createStore({
   state: {
     user: {
       token: sessionStorage.getItem("TOKEN") || (parsedData.token ? parsedData.token : ""),
-      data: parsedData.data || {},
+      data: parsedData || {},
     },
   },
   getters: {},
