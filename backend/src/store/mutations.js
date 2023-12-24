@@ -1,7 +1,7 @@
 export function setUser(state, user) {
     state.user.data = user;
     if (user) {
-        sessionStorage.setItem("user", user);
+        sessionStorage.setItem("user", JSON.stringify(user)); // Store the user object as a string
     } else {
         sessionStorage.removeItem("user");
     }
@@ -12,15 +12,6 @@ export function setToken(state, token) {
     if (token) {
         sessionStorage.setItem('TOKEN', token);
     } else {
-        sessionStorage.removeItem('TOKEN')
-    }
-}
-
-export function removeUserData(state, user) {
-    state.user.data = user;
-    if (user) {
-        localStorage.setItem("user", user);
-    } else {
-        localStorage.removeItem("user");
+        sessionStorage.removeItem('TOKEN');
     }
 }
