@@ -11,9 +11,8 @@ export function getUser({ commit }, data) {
 export function login({ commit }, data) {
     return axiosClient.post('/login', data)
         .then(({ data }) => {
-            console.log('user checking', data.user);
-            commit('setUser', JSON.stringify(data.user));
-            commit('setToken', data.token)
+            commit('setUser', data.user);
+            commit('setToken', data.token);
             return data;
         })
 }

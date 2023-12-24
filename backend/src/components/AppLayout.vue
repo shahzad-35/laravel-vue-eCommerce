@@ -1,5 +1,5 @@
 <template>
-    <div v-if="true" class="h-full bg-gray-200 flex">
+    <div v-if="currentUser.id" class="h-full bg-gray-200 flex">
         <!--    Sidebar-->
         <Sidebar :class="{ '-ml-[200px]': !sidebarOpened }" />
         <!--/    Sidebar-->
@@ -57,7 +57,6 @@ function updateSidebarState() {
     sidebarOpened.value = window.outerWidth > 768;
 }
 onMounted(() => {
-    // store.dispatch('getUser')
     updateSidebarState();
     window.addEventListener('resize', updateSidebarState)
 })
