@@ -8,7 +8,8 @@
             Add new Product
         </button>
     </div>
-    <div class="bg-white p-4 rounded-lg shadow">
+    <div class="content">
+        <div class="bg-white p-4 rounded-lg shadow">
         <div class="flex justify-between border-b-2 pb-3">
             <div class="flex items-center">
                 <span class="whitespace-nowrap mr-3">Per Page</span>
@@ -91,7 +92,7 @@
                     <td class="border-b p-2">
                         <img
                             class="w-16 h-16 object-cover"
-                            :src="product.image"
+                            :src="product.image_url"
                             :alt="product.title"
                         />
                     </td>
@@ -142,6 +143,7 @@
                 </a>
             </nav>
         </div>
+    </div>
     </div>
     <AddNewProduct v-model="showProductModal"/>
 </template>

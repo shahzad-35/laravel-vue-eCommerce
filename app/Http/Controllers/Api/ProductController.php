@@ -8,6 +8,8 @@ use App\Http\Resources\ProductListResource;
 use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 
@@ -45,9 +47,11 @@ class ProductController extends Controller
         $data['updated_by'] = $request->user()->id;
 
         $image = $data['image'] ?? null;
-
+        info('image');info($data);
         if ($image) {
             $relativePath = $this->saveImage($image);
+            info('relativePath');info($relativePath);
+            info('image');info($image);
             $data['image'] = URL::to(Storage::url($relativePath));
             $data['image_mime'] = $image->getClientMimeType();
             $data['image_size'] = $image->getSize();
@@ -57,6 +61,18 @@ class ProductController extends Controller
         return new ProductResource($product);
     }
 
+    private function saveImage(UploadedFile $image)
+    {
+        $path = 'images/' . Str::random();
+        if (!Storage::exists($path)) {
+            Storage::makeDirectory($path, 0755, true);
+        }
+        if (!Storage::putFileAS('public/'.$path, $image, $image->getClientOriginalName())) {
+            throw new \Exception("Unable to save file \"{$image->getClientOriginalName()}\"");
+        }
+
+        return $path . '/' . $image->getClientOriginalName();
+    }
     /**
      * Display the specified resource.
      *
