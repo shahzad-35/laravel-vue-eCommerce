@@ -31,6 +31,10 @@
                         <DialogPanel
                             class="relative bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:max-w-lg sm:w-full"
                         >
+                            <Spinner
+                                v-if="loading"
+                                class="absolute left-0 top-0 bg-white right-0 bottom-0 flex items-center justify-center"
+                            />
                             <header
                                 class="py-3 px-4 flex justify-between items-center"
                             >
@@ -69,6 +73,14 @@
                                         v-model="product.title"
                                         label="Product Title"
                                     />
+                                    <input
+                                    ref="file"
+                                        type="file"
+                                        @change="handleFileUpload($event)"
+                                        accept="image/*"
+                                        capture
+                                    />
+
                                     <CustomInput
                                         type="textarea"
                                         class="mb-2"
@@ -80,11 +92,6 @@
                                         class="mb-2"
                                         v-model="product.price"
                                         label="Price"
-                                    />
-                                    <CustomInput
-                                        class="mb-2"
-                                        v-model="product.title"
-                                        label="Product Title"
                                     />
                                 </div>
                                 <footer
@@ -128,10 +135,12 @@ import { ExclamationIcon } from "@heroicons/vue/outline";
 import CustomInput from "../components/core/CustomInput.vue";
 import store from "../store/index.js";
 import { PRODUCTS_PER_PAGE } from "../constants";
+import Spinner from "../components/core/Spinner.vue";
 const perPage = ref(PRODUCTS_PER_PAGE);
 const search = ref("");
 const sortField = ref("updated_at");
 const sortDirection = ref("desc");
+const loading = ref(false);
 
 const product = ref({
     title: null,
@@ -150,25 +159,38 @@ const show = computed({
 function closeModal() {
     show.value = false;
 }
+const file = ref(null);
+
+const handleFileUpload = async ($event) => {
+    product.value.image = $event.target.files[0];
+};
 function onSubmit() {
-    store.dispatch("createProduct", product.value).then((response) => {
-        if (response.status === 201) {
-            let url = null;
-            store.dispatch("getProducts", {
-                url,
-                search: search.value,
-                per_page: perPage.value,
-                sort_field: sortField.value,
-                sort_direction: sortDirection.value,
-            });
-            show.value = false;
-            product.value = {
-                title: null,
-                image: null,
-                description: null,
-                price: null,
-            };
-        }
-    });
+    loading.value = true;
+    store
+        .dispatch("createProduct", product.value)
+        .then((response) => {
+            loading.value = false;
+            if (response.status === 201) {
+                let url = null;
+                store.dispatch("getProducts", {
+                    url,
+                    search: search.value,
+                    per_page: perPage.value,
+                    sort_field: sortField.value,
+                    sort_direction: sortDirection.value,
+                });
+                show.value = false;
+                product.value = {
+                    title: null,
+                    image: null,
+                    description: null,
+                    price: null,
+                };
+            }
+        })
+        .catch((err) => {
+            loading.value = false;
+        });
 }
+
 </script>
