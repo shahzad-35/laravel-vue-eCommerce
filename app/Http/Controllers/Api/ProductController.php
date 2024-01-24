@@ -10,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 
@@ -47,14 +48,11 @@ class ProductController extends Controller
         $data['updated_by'] = $request->user()->id;
 
         $image = $data['image'] ?? null;
-        info('image');info($data);
         if ($image) {
             $relativePath = $this->saveImage($image);
-            info('relativePath');info($relativePath);
-            info('image');info($image);
-            $data['image'] = URL::to(Storage::url($relativePath));
-            $data['image_mime'] = $image->getClientMimeType();
-            $data['image_size'] = $image->getSize();
+            $data['image'] = URL::to($relativePath['filePath']);
+            $data['image_mime'] = $relativePath['file_mime'];
+            $data['image_size'] = $relativePath['fileSize'];
         }
         $product = Product::create($data);
 
@@ -63,16 +61,26 @@ class ProductController extends Controller
 
     private function saveImage(UploadedFile $image)
     {
-        $path = 'images/' . Str::random();
-        if (!Storage::exists($path)) {
-            Storage::makeDirectory($path, 0755, true);
-        }
-        if (!Storage::putFileAS('public/'.$path, $image, $image->getClientOriginalName())) {
-            throw new \Exception("Unable to save file \"{$image->getClientOriginalName()}\"");
-        }
+        $path = public_path('images/');
+        !is_dir($path) && mkdir($path, 0777, true);
+        
+        $fileName   = time().'.'.$image->getClientOriginalExtension();
+        $file_name  = $image->getClientOriginalName();
+        $file_type  = $image->getClientOriginalExtension();
+        $file_size  = $image->getSize();
+        $file_mime  = $image->getMimeType();
+        $filePath   = 'images/' . $fileName;
 
-        return $path . '/' . $image->getClientOriginalName();
+        $image->move($path, $fileName);
+        return [
+            'fileName' => $file_name,
+            'fileType' => $file_type,
+            'filePath' => $filePath,
+            'fileSize' => $file_size,
+            'file_mime' => $file_mime
+        ];
     }
+
     /**
      * Display the specified resource.
      *

@@ -48,7 +48,6 @@ export function getProducts({commit, state}, {url = null, search='', perPage, pe
 }
 
 export function createProduct({commit}, product) {
-  console.log('product', product.image);
   if (product.image instanceof File) {
     const form = new FormData();
     form.append('title', product.title);

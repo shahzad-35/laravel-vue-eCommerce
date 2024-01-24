@@ -162,15 +162,10 @@ function closeModal() {
 const file = ref(null);
 
 const handleFileUpload = async ($event) => {
-    // debugger;
-    console.log('$event',$event.target.files[0]);
-    console.log("selected file", file.value.files[0]);
-    return $event.target.files[0];
-    //Upload to server
+    product.value.image = $event.target.files[0];
 };
 function onSubmit() {
     loading.value = true;
-    console.log('product',product.value);
     store
         .dispatch("createProduct", product.value)
         .then((response) => {
@@ -194,9 +189,7 @@ function onSubmit() {
             }
         })
         .catch((err) => {
-            console.log("err", err);
             loading.value = false;
-            //   debugger;
         });
 }
 
