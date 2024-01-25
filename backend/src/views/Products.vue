@@ -140,6 +140,7 @@
                         active ? 'bg-indigo-600 text-white' : 'text-gray-900',
                         'group flex w-full items-center rounded-md px-2 py-2 text-sm',
                       ]"
+                      @click="editProduct(product)"
                     >
                       <PencilIcon
                         :active="active"
@@ -208,7 +209,7 @@
         </div>
     </div>
     </div>
-    <AddNewProduct v-model="showProductModal"/>
+    <AddNewProduct v-model="showProductModal" :product="product"/>
 </template>
 
 <script setup>
@@ -227,6 +228,7 @@ const products = computed(() => store.state.products);
 const sortField = ref("updated_at");
 const sortDirection = ref("desc");
 const showProductModal = ref(false);
+const product = ref({})
 
 onMounted(() => {
     getProducts();
@@ -266,6 +268,7 @@ function sortProducts(field) {
 }
 function showAddNewModal() {
   showProductModal.value = true
+  product.value = {};
 }
 
 function deleteProduct(product){
@@ -274,9 +277,15 @@ function deleteProduct(product){
     }
     store.dispatch('deleteProduct', product.id)
     .then(res => {
-      // TODO Show notification
       store.dispatch('getProducts')
     })
+}
+function editProduct(pro){
+    store.dispatch('getProduct', pro.id)
+        .then(({data}) => {
+            product.value = data;
+            showProductModal.value = true
+        })
 }
 </script>
 

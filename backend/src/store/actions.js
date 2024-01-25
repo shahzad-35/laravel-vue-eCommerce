@@ -63,3 +63,22 @@ export function createProduct({commit}, product) {
 export function deleteProduct({commit}, productId){
   return axiosClient.delete(`/products/${productId}`);
 }
+
+export function getProduct({commit}, productId){
+  return axiosClient.get(`/products/${productId}`);
+}
+
+export function updateProduct({commit}, product) {
+  const id = product.id
+  if (product.image instanceof File) {
+    const form = new FormData();
+    form.append('id', product.id);
+    form.append('title', product.title);
+    form.append('image', product.image);
+    form.append('description', product.description);
+    form.append('price', product.price);
+    form.append('_method', 'PUT');
+    product = form;
+  }
+  return axiosClient.post(`/products/${id}`, product)
+}
