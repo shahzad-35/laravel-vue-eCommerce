@@ -84,6 +84,26 @@
                                         accept="image/*"
                                         capture
                                     />
+                                    <!-- Image preview section -->
+                                    <div v-if="product.image" class="mt-4">
+                                        <p class="text-lg font-semibold mb-2">
+                                            Selected Image Preview:
+                                        </p>
+                                        <div class="relative">
+                                            <img
+                                                :src="imagePreview"
+                                                alt="Selected Image"
+                                                class="w-full h-auto object-cover rounded-md mb-2"
+                                            />
+                                            <button
+                                                @click="removeImage"
+                                                class="absolute top-0 right-0 mt-1 mr-1 p-1 bg-white text-red-500 rounded-full focus:outline-none"
+                                            >
+                                                <!-- Add an icon or text for the cancel button -->
+                                                X
+                                            </button>
+                                        </div>
+                                    </div>
 
                                     <CustomInput
                                         type="textarea"
@@ -150,6 +170,7 @@ const search = ref("");
 const sortField = ref("updated_at");
 const sortDirection = ref("desc");
 const loading = ref(false);
+const imagePreview = ref(null);
 
 const props = defineProps({
     modelValue: Boolean,
@@ -189,6 +210,15 @@ function closeModal() {
 const file = ref(null);
 
 const handleFileUpload = async ($event) => {
+    const file = $event.target.files[0];
+
+    // Convert the file to a data URL for preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        imagePreview.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
     product.value.image = $event.target.files[0];
 };
 function onSubmit() {
@@ -223,4 +253,9 @@ function onSubmit() {
         });
     }
 }
+
+const removeImage = () => {
+  product.value.image = null;
+  imagePreview.value = null;
+};
 </script>
