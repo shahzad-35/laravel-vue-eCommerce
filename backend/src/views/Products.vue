@@ -225,7 +225,7 @@ import {DotsVerticalIcon, PencilIcon, TrashIcon} from '@heroicons/vue/outline'
 const perPage = ref(PRODUCTS_PER_PAGE);
 const search = ref("");
 const products = computed(() => store.state.products);
-const sortField = ref("updated_at");
+const sortField = ref("id");
 const sortDirection = ref("desc");
 const showProductModal = ref(false);
 const product = ref({})
