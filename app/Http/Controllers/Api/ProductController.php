@@ -50,7 +50,7 @@ class ProductController extends Controller
         $image = $data['image'] ?? null;
         if ($image) {
             $relativePath = $this->saveImage($image);
-            $data['image'] = URL::to($relativePath['filePath']);
+            $data['image'] = $relativePath['filePath'];
             $data['image_mime'] = $relativePath['file_mime'];
             $data['image_size'] = $relativePath['fileSize'];
         }
@@ -73,7 +73,7 @@ class ProductController extends Controller
 
         $image->move($path, $fileName);
         return [
-            'fileName' => $file_name,
+            'fileName' => $fileName,
             'fileType' => $file_type,
             'filePath' => $filePath,
             'fileSize' => $file_size,
@@ -99,26 +99,24 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \App\Http\Resources\ProductResource
      */
-    public function update(Request $request, Product $product)
+    public function update(ProductRequest $request, Product $product)
     {
 
         $data = $request->validated();
         $data['updated_by'] = $request->user()->id;
 
         $image = $data['image'] ?? null;
-
         if ($image) {
             $relativePath = $this->saveImage($image);
-            $data['image'] = URL::to(Storage::url($relativePath));
-            $data['image_mime'] = $image->getClientMimeType();
-            $data['image_size'] = $image->getSize();
+            $data['image'] = $relativePath['filePath'];
+            $data['image_mime'] = $relativePath['file_mime'];
+            $data['image_size'] = $relativePath['fileSize'];
         }
 
         if ($product->image) {
-            Storage::deleteDirectory('/public/' . dirname($product->image));
+            $image_path = public_path().'/'.$product->image;
+            unlink($image_path);
         }
-
-
         $product->update($data);
 
         return new ProductResource($product);

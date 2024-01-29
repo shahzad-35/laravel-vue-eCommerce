@@ -42,7 +42,11 @@
                                     as="h3"
                                     class="text-lg leading-6 font-medium text-gray-900"
                                 >
-                                    Create new Product
+                                    {{
+                                        product.id
+                                            ? `Update product: "${product.title}"`
+                                            : "Create new Product"
+                                    }}
                                 </DialogTitle>
                                 <button
                                     @click="closeModal()"
@@ -74,12 +78,32 @@
                                         label="Product Title"
                                     />
                                     <input
-                                    ref="file"
+                                        ref="file"
                                         type="file"
                                         @change="handleFileUpload($event)"
                                         accept="image/*"
                                         capture
                                     />
+                                    <!-- Image preview section -->
+                                    <div v-if="product.image" class="mt-4">
+                                        <p class="text-lg font-semibold mb-2">
+                                            Selected Image Preview:
+                                        </p>
+                                        <div class="relative">
+                                            <img
+                                                :src="imagePreview"
+                                                alt="Selected Image"
+                                                class="w-full h-auto object-cover rounded-md mb-2"
+                                            />
+                                            <button
+                                                @click="removeImage"
+                                                class="absolute top-0 right-0 mt-1 mr-1 p-1 bg-white text-red-500 rounded-full focus:outline-none"
+                                            >
+                                                <!-- Add an icon or text for the cancel button -->
+                                                X
+                                            </button>
+                                        </div>
+                                    </div>
 
                                     <CustomInput
                                         type="textarea"
@@ -92,6 +116,11 @@
                                         class="mb-2"
                                         v-model="product.price"
                                         label="Price"
+                                    />
+                                    <CustomInput
+                                        class="mb-2"
+                                        v-model="product.title"
+                                        label="Product Title"
                                     />
                                 </div>
                                 <footer
@@ -122,7 +151,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, onUpdated, ref } from "vue";
 
 import {
     Dialog,
@@ -141,16 +170,35 @@ const search = ref("");
 const sortField = ref("updated_at");
 const sortDirection = ref("desc");
 const loading = ref(false);
+const imagePreview = ref(null);
 
-const product = ref({
-    title: null,
-    image: null,
-    description: null,
-    price: null,
-});
 const props = defineProps({
     modelValue: Boolean,
+    product: {
+        required: false,
+        type: Object,
+        default: {},
+    },
 });
+
+const product = ref({
+    id: props.product.id,
+    title: props.product.title,
+    image: props.product.image_url,
+    description: props.product.description,
+    price: props.product.price,
+});
+
+onUpdated(() => {
+    product.value = {
+        id: props.product.id,
+        title: props.product.title,
+        image: props.product.image,
+        description: props.product.description,
+        price: props.product.price,
+    };
+});
+
 const emit = defineEmits(["update:modelValue"]);
 const show = computed({
     get: () => props.modelValue,
@@ -162,24 +210,36 @@ function closeModal() {
 const file = ref(null);
 
 const handleFileUpload = async ($event) => {
+    const file = $event.target.files[0];
+
+    // Convert the file to a data URL for preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        imagePreview.value = e.target.result;
+    };
+    reader.readAsDataURL(file);
+
     product.value.image = $event.target.files[0];
 };
 function onSubmit() {
     loading.value = true;
+    if(product.value.id){
+        store.dispatch('updateProduct', product.value)
+        .then(res => {
+            if(res.status === 200){
+                store.dispatch("getProducts");
+                closeModal();
+                loading.value = false;
+            }
+        })
+    }else{
     store
         .dispatch("createProduct", product.value)
         .then((response) => {
             loading.value = false;
             if (response.status === 201) {
-                let url = null;
-                store.dispatch("getProducts", {
-                    url,
-                    search: search.value,
-                    per_page: perPage.value,
-                    sort_field: sortField.value,
-                    sort_direction: sortDirection.value,
-                });
-                show.value = false;
+                store.dispatch("getProducts");
+                closeModal()
                 product.value = {
                     title: null,
                     image: null,
@@ -191,6 +251,11 @@ function onSubmit() {
         .catch((err) => {
             loading.value = false;
         });
+    }
 }
 
+const removeImage = () => {
+  product.value.image = null;
+  imagePreview.value = null;
+};
 </script>
