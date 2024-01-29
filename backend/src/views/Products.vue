@@ -209,7 +209,7 @@
         </div>
     </div>
     </div>
-    <AddNewProduct v-model="showProductModal" :product="product"/>
+    <ProductModal v-model="showProductModal" :product="product"/>
 </template>
 
 <script setup>
@@ -218,7 +218,7 @@ import store from "../store";
 import Spinner from "../components/core/Spinner.vue";
 import { PRODUCTS_PER_PAGE } from "../constants";
 import TableHeaderCell from "../components/core/Table/TableHeaderCell.vue";
-import AddNewProduct from "./AddNewProduct.vue";
+import ProductModal from "./Products/ProductModal.vue";
 import {Menu, MenuButton, MenuItem, MenuItems} from "@headlessui/vue";
 import {DotsVerticalIcon, PencilIcon, TrashIcon} from '@heroicons/vue/outline'
 
