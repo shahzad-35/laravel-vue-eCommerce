@@ -21,5 +21,6 @@ Route::middleware(['auth:sanctum', 'admin'])->controller(AuthController::class)-
     Route::post('/logout', 'logout');
 
     Route::apiResource('products', ProductController::class);
+    Route::post('products/{id}', [ProductController::class, 'update']);
 });
 Route::post('/login', [AuthController::class, 'login']);

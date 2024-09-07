@@ -96,15 +96,16 @@ class ProductController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Product  $product
+     * @param  $product
      * @return \App\Http\Resources\ProductResource
      */
-    public function update(ProductRequest $request, Product $product)
+    public function update(ProductRequest $request, $productId)
     {
 
         $data = $request->validated();
         $data['updated_by'] = $request->user()->id;
 
+        $product = Product::where('id', $productId)->first();
         $image = $data['image'] ?? null;
         if ($image) {
             $relativePath = $this->saveImage($image);
@@ -112,10 +113,12 @@ class ProductController extends Controller
             $data['image_mime'] = $relativePath['file_mime'];
             $data['image_size'] = $relativePath['fileSize'];
         }
-
-        if ($product->image) {
+        
+        if ($product?->image) {
             $image_path = public_path().'/'.$product->image;
-            unlink($image_path);
+            if(File::exists($image_path)){
+                unlink($image_path);
+            }
         }
         $product->update($data);
 
